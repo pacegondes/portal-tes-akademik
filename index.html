@@ -327,19 +327,20 @@
         }
         .btn-tutup-exam:active { transform: translateY(0); }
 
-        /* KOTAK INFO MAPEL DI TENGAH */
+        /* KOTAK INFO MAPEL & KELAS DI TENGAH */
         #exam-mapel-info {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             color: #0f172a;
             background: #f1f5f9;
-            padding: 8px 20px;
+            padding: 8px 16px;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
             text-align: center;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         /* KOTAK COUNTDOWN TIMER JALAN DI SEBELAH KANAN */
@@ -428,7 +429,7 @@
             </button>
             
             <div id="exam-mapel-info">
-                📚 UJIAN: <span id="info-mapel" style="color: #00AA5B;">-</span>
+                📚 UJIAN: <span id="info-mapel-kelas" style="color: #00AA5B;">-</span>
             </div>
             
             <div class="exam-timer-box">
@@ -543,15 +544,15 @@ function startExamTimer(durationSeconds) {
 }
 
 // EKSEKUSI KETIKA TOMBOL MULAI TES DIKLIK
-function handleGoToLink(url, mapel, event) {
+function handleGoToLink(url, mapel, kelas, event) {
     event.preventDefault();
     if (!isValidHttpUrl(url)) {
         showToast(); 
         return false;
     }
     
-    // Tampilkan Nama Mapel di header overlay
-    document.getElementById('info-mapel').innerText = mapel.toUpperCase();
+    // Tampilkan Nama Mapel dan Kelas di header overlay
+    document.getElementById('info-mapel-kelas').innerText = `${mapel.toUpperCase()} - KELAS ${kelas}`;
     
     examFrame.src = url;
     examOverlay.classList.add('active');
@@ -607,7 +608,7 @@ function render(data) {
             <div class="verified-header"><span class="info-tag">SOAL TES PENGESAHAN</span><div class="verified-badge">✓</div></div>
             <div class="badge-kelas">KELAS ${item.kelas}</div>
             <div class="mapel">${item.mapel}</div>
-            <button class="${btnClass}" onclick="handleGoToLink('${item.link}', '${item.mapel}', event)">${btnText}</button>
+            <button class="${btnClass}" onclick="handleGoToLink('${item.link}', '${item.mapel}', '${item.kelas}', event)">${btnText}</button>
         `;
         container.appendChild(card);
     });
