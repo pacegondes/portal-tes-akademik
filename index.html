@@ -367,6 +367,69 @@
             border: none;
         }
 
+        /* --- OVERLAY PERINGATAN WAKTU KHUSUS --- */
+        #time-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 999999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .alert-box {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 420px;
+            width: 85%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 4px solid #cbd5e1;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { 
+            0% { transform: scale(0.7); opacity: 0; } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        .alert-box h2 { 
+            color: #dc2626; 
+            margin-top: 0; 
+            font-size: 24px; 
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .alert-box p { 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: #334155; 
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .btn-lanjutkan {
+            background: #00AA5B;
+            color: white;
+            padding: 16px 35px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 6px 0 #007c3e;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .btn-lanjutkan:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #007c3e; }
+        .btn-lanjutkan:active { transform: translateY(4px); box-shadow: none; }
+
         @media (max-width: 768px) {
             .results { grid-template-columns: 1fr; }
             input { font-size: 17px; padding-left: 70px; }
@@ -429,7 +492,7 @@
             </button>
             
             <div id="exam-mapel-info">
-                📚 TES: <span id="info-mapel-kelas" style="color: #00AA5B;">-</span>
+                📚 UJIAN: <span id="info-mapel-kelas" style="color: #00AA5B;">-</span>
             </div>
             
             <div class="exam-timer-box">
@@ -441,6 +504,14 @@
         <iframe id="exam-frame" src=""></iframe>
     </div>
 
+    <div id="time-alert-overlay">
+        <div class="alert-box">
+            <h2>⚠️ PERINGATAN WAKTU</h2>
+            <p id="alert-message-text">Pemberitahuan ujian.</p>
+            <button class="btn-lanjutkan" onclick="tutupAlert()">LANJUTKAN</button>
+        </div>
+    </div>
+
 <script>
 const searchInput = document.getElementById('searchInput');
 const body = document.body;
@@ -448,6 +519,8 @@ const toast = document.getElementById('customToast');
 const themeToggle = document.getElementById('themeToggle');
 const examOverlay = document.getElementById('exam-overlay');
 const examFrame = document.getElementById('exam-frame');
+const timeAlertOverlay = document.getElementById('time-alert-overlay');
+const alertMessageText = document.getElementById('alert-message-text');
 
 let countdownInterval;
 
@@ -517,7 +590,7 @@ function showToast() {
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
-// FUNGSI JALANKAN HITUNGAN MUNDUR (60 MENIT)
+// FUNGSI JALANKAN HITUNGAN MUNDUR (60 MENIT) DENGAN OVERLAY LAYAR PENUH
 function startExamTimer(durationSeconds) {
     clearInterval(countdownInterval);
     let timeRemaining = durationSeconds;
@@ -534,6 +607,15 @@ function startExamTimer(durationSeconds) {
 
         timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
 
+        // Tampilkan Peringatan Layar Penuh (Overlay)
+        if (timeRemaining === 1200) {
+            panggilPeringatan("Waktu Ujian Tersisa 20 Menit Lagi.");
+        } else if (timeRemaining === 600) {
+            panggilPeringatan("Waktu Ujian Tersisa 10 Menit Lagi.");
+        } else if (timeRemaining === 300) {
+            panggilPeringatan("Waktu Ujian Tersisa 5 Menit Lagi! Segera Selesaikan Jawaban Anda.");
+        }
+
         if (timeRemaining <= 0) {
             clearInterval(countdownInterval);
             alert("Waktu ujian Anda telah habis! Anda akan diarahkan kembali ke halaman utama.");
@@ -541,6 +623,15 @@ function startExamTimer(durationSeconds) {
         }
         timeRemaining--;
     }, 1000);
+}
+
+function panggilPeringatan(pesan) {
+    alertMessageText.innerText = pesan;
+    timeAlertOverlay.style.display = 'flex';
+}
+
+function tutupAlert() {
+    timeAlertOverlay.style.display = 'none';
 }
 
 // EKSEKUSI KETIKA TOMBOL MULAI TES DIKLIK
@@ -566,6 +657,7 @@ function handleGoToLink(url, mapel, kelas, event) {
 // FUNGSI KELUAR / RESET MANUAL
 function tutupUjian() {
     clearInterval(countdownInterval);
+    tutupAlert();
     examFrame.src = "";
     examOverlay.classList.remove('active');
     resetToHome();
